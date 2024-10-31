@@ -51,7 +51,7 @@ resource "aws_instance" "rabbitmq" {
   user_data              = file("${path.module}/userdata.sh")
   tags                   = merge(var.tags, { Name = "${local.name_prefix}" })
 
-  iam_instance_profile = aws_iam_instance_profile.main
+  iam_instance_profile = aws_iam_instance_profile.main.name
 
   ebs_block_device {
     device_name           = "/dev/sda1"
