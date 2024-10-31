@@ -51,6 +51,10 @@ resource "aws_instance" "rabbitmq" {
   user_data              = file("${path.module}/userdata.sh")
   tags                   = merge(var.tags, { Name = "${local.name_prefix}" })
 
+  iam_instance_profile {
+    name = "${local.name_prefix}-role"
+  }
+
 
   ebs_block_device {
     device_name           = "/dev/sda1"
@@ -69,4 +73,73 @@ resource "aws_route53_record" "rabbitmq" {
   records = [aws_instance.rabbitmq.private_ip]
 }
 
+# New
 
+
+
+# Create IAM Policy to provide access SSM Parameter Store.
+resource "aws_iam_policy" "main" {
+  name        = "${local.name_prefix}-policy"
+  path        = "/"
+  description = "${local.name_prefix}-policy-to-access-ssm"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "VisualEditor0",
+        "Effect" : "Allow",
+        "Action" : [
+          "ssm:GetParameterHistory",
+          "ssm:GetParametersByPath",
+          "ssm:GetParameters",
+          "ssm:GetParameter"
+        ],
+        "Resource" : "arn:aws:ssm:us-east-1:060795929502:parameter/payment.${var.env}.*"
+      },
+      {
+        "Sid" : "VisualEditor1",
+        "Effect" : "Allow",
+        "Action" : "ssm:DescribeParameters",
+        "Resource" : "*"
+      }
+    ]
+  })
+}
+
+
+# Create IAM role to allow ec2 to access SSM.
+resource "aws_iam_role" "main" {
+  name = "${local.name_prefix}-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+  tags               = merge(var.tags, { Name = "${local.name_prefix}-role" })
+}
+
+
+# Attach the Policy with IAM Role.
+resource "aws_iam_role_policy_attachment" "main" {
+  role       = aws_iam_role.main.name
+  policy_arn = aws_iam_policy.main.arn
+}
+
+
+# Create IAM instance profile
+resource "aws_iam_instance_profile" "main" {
+  name = "${local.name_prefix}-role"
+  role = aws_iam_role.main.name
+}
