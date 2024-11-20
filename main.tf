@@ -72,10 +72,6 @@ resource "aws_route53_record" "rabbitmq" {
   records = [aws_instance.rabbitmq.private_ip]
 }
 
-# New
-
-
-
 # Create IAM Policy to provide access SSM Parameter Store.
 resource "aws_iam_policy" "main" {
   name        = "${local.name_prefix}-policy"
