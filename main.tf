@@ -57,6 +57,8 @@ resource "aws_instance" "rabbitmq" {
     device_name           = "/dev/sda1"
     volume_size           = 10
     delete_on_termination = true
+    kms_key_id            = var.kms_key_id
+    encrypted             = true
     tags                  = merge(var.tags, { Name = "${local.name_prefix}-os-disk" })
   }
 }

@@ -29,3 +29,7 @@ variable "db_subnets" {
 variable "zone_id" {
   description = "Route53 hosted zone ID for the domain"
 }
+
+variable "kms_key_id" {
+  description = "Provide the KMS ARN"
+}
