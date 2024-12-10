@@ -91,8 +91,8 @@ resource "aws_iam_policy" "main" {
           "ssm:GetParameter"
         ],
         "Resource": [
-          "arn:aws:ssm:us-east-1:060795929502:parameter/payment.dev.*",
-          "arn:aws:kms:us-east-1:060795929502:key/44d09148-0677-4a8b-a183-cd2a9b03b2eb"
+          "arn:aws:ssm:us-east-1:940482433230:parameter/payment.dev.*",
+          "arn:aws:kms:us-east-1:940482433230:key/ac63f4b2-595c-4455-8abb-ce8995a5ffcd"
         ]
       },
       {
